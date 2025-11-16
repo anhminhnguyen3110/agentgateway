@@ -1,3 +1,7 @@
+config:
+  tracing:
+    otlpEndpoint: http://jaeger:4317
+    randomSampling: true
 binds:
 - port: 3001
   listeners:
