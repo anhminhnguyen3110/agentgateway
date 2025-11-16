@@ -8,11 +8,14 @@ services:
     container_name: agentgateway-container
     ports:
       - "3000:3000"   # Gateway port (direct)
+      - "3001:3001"   # AI port (direct)
       - "15000:15001" # UI port via socat forwarding 
     volumes:
       - ./config.yaml:/app/config.yaml:ro  # Mount config file directly
     environment:
       - NODE_ENV=production
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-AIzaSyC2vWk96L3WnIdXqdYpliFuhoH8XwbJTtY}
+      - GEMINI_API_KEY=${GOOGLE_API_KEY:-AIzaSyC2vWk96L3WnIdXqdYpliFuhoH8XwbJTtY}
     restart: unless-stopped
     networks:
       - agentgateway-net

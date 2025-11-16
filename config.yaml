@@ -1,4 +1,21 @@
 binds:
+- port: 3001
+  listeners:
+  - routes:
+    - policies:
+        cors:
+          allowOrigins:
+            - "*"
+          allowHeaders:
+            - "*"
+        backendAuth:
+          key: ""
+      backends:
+      - ai:
+          name: gemini
+          provider:
+            gemini:
+              model: gemini-2.0-flash
 - port: 3000
   listeners:
   - routes:
