@@ -1,0 +1,20 @@
+binds:
+- port: 3000
+  listeners:
+  - routes:
+    - policies:
+        cors:
+          allowOrigins:
+            - "*"
+          allowHeaders:
+            - "*"
+      backends:
+      - mcp:
+          targets:
+          - name: mcp
+            mcp:
+              host: http://mcp-add-server-container:5000/mcp/
+          - name: everything
+            stdio:
+              cmd: npx
+              args: ["@modelcontextprotocol/server-everything"]

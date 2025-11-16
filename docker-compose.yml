@@ -1,0 +1,68 @@
+services:
+  agentgateway:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    container_name: agentgateway-container
+    ports:
+      - "3000:3000"   # Gateway port (direct)
+      - "15000:15001" # UI port via socat forwarding 
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro  # Mount config file directly
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    networks:
+      - agentgateway-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health || true"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx-proxy
+    ports:
+      - "8080:80"     # Nginx default on port 8080
+      - "8000:8000"   # Alternative Gateway API proxy
+      - "8001:8001"   # Alternative Admin UI proxy
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - agentgateway
+      - mcp-add-server
+    restart: unless-stopped
+    networks:
+      - agentgateway-net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80 || true"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-add-server:
+    build:
+      context: ./mcp-add-server
+      dockerfile: Dockerfile
+    container_name: mcp-add-server-container
+    ports:
+      - "5000:5000"   # MCP server port
+    environment:
+      - FLASK_ENV=production
+    restart: unless-stopped
+    networks:
+      - agentgateway-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  agentgateway-net:
+    driver: bridge
