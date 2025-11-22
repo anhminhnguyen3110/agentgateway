@@ -34,16 +34,12 @@ RUN curl -s https://api.github.com/repos/agentgateway/agentgateway/releases/late
 # Copy config file
 COPY config.yaml /app/config.yaml
 
-# Copy start script
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
-
 # Set environment variables for binding
 ENV AGENTGATEWAY_ADMIN_HOST=0.0.0.0
 ENV AGENTGATEWAY_ADMIN_PORT=15000
 
 # Expose ports
-EXPOSE 3000 15000
+EXPOSE 3000 3001 15000
 
-# Chạy agentgateway
-CMD ["/app/start.sh"]
+# Chạy agentgateway trực tiếp với config
+CMD ["agentgateway", "-f", "/app/config.yaml"]

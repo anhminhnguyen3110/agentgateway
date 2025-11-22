@@ -8,6 +8,17 @@ binds:
             - "*"
           allowHeaders:
             - "*"
+            - authorization
+        jwtAuth:
+          mode: strict
+          providers:
+            - issuer: "http://localhost:8081/realms/agentgateway"
+              audiences: ["agentgateway-api"]
+              jwks:
+                url: "http://keycloak:8080/realms/agentgateway/protocol/openid-connect/certs"
+        authorization:
+          rules:
+            - "'test-user' in jwt.groups"
         backendAuth:
           key: ""
       backends:
@@ -25,12 +36,12 @@ binds:
             - "*"
           allowHeaders:
             - "*"
+            - authorization
+            - mcp-protocol-version
+            - cache-control
       backends:
       - mcp:
           targets:
-          - name: mcp
-            mcp:
-              host: http://mcp-add-server-container:5000/mcp/
           - name: everything
             stdio:
               cmd: npx
